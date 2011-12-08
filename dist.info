@@ -1,0 +1,14 @@
+--- This file is part of LuaDist project
+
+name = "lua-apr"
+version = "0.23.2"
+
+desc = "Apache Portable Runtime binding for Lua"
+author = "Peter Odding"
+license = "MIT/X11"
+url = "http://peterodding.com/code/lua/apr/"
+maintainer = "Michal Kottman"
+
+depends = {
+	"lua ~> 5.1"
+}
