@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>To-do list for the Lua/APR binding</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+body { font-family: sans-serif; padding: 1em 30% 10em 1em; cursor: default; }
+a:link, a:visited { color: #000080; }
+a:hover, a:active { color: #F00; }
+pre, code, tt { font-family: Monaco, Consolas, monospace; }
+pre, code { border: 1px solid #CCC; background: #F0F0F0; }
+pre code, h1 code, h2 code, h3 code, h4 code, h5 code, h6 code { border: none; background: none; }
+pre { padding: .3em; margin: 0 4em 0 2em; }
+code { padding: .05em .2em; }
+pre code { padding: none; }
+p, li { text-align: justify; line-height: 1.75em; }
+h1 { margin: 0; padding: 0 30% 0 0; color: #AAA; text-shadow: #000 1px 1px 0; }
+h2, h3 { border-bottom: 2px solid #F6F6F6; margin: 2em 0 0 0; padding-left: 0.5em; }
+h2 a:link, h2 a:visited, h3 a:link, h3 a:visited { padding: .2em; text-decoration: none; color: inherit; }
+h2 a:hover, h3 a:hover { color: #F00; }
+</style>
+</head>
+<body>
+<h1>To-do list for the Lua/APR binding</h1>
+
+<h2>New features</h2>
+
+<ul>
+<li><strong>Encrypted network communication</strong>. It appears that APR itself doesn&rsquo;t support this but clearly it&rsquo;s possible because there are dozens of projects that use APR and support encrypted network communication (the <a href="http://en.wikipedia.org/wiki/Apache_HTTP_Server">Apache HTTP server</a>, <a href="http://en.wikipedia.org/wiki/ApacheBench">ApacheBench</a>, <a href="http://en.wikipedia.org/wiki/Apache_Tomcat">Tomcat</a>, etc.)</li>
+<li>Make it possible to enable text mode for files, pipes and sockets on platforms where there is no distinction between text/binary mode (because <code>CR</code> + <code>LF</code> → <code>LF</code> translation can be useful on UNIX as well)</li>
+</ul>
+
+
+<h2>Known problems</h2>
+
+<ul>
+<li>Find out why <strong><code>apr.xlate()</code> doesn&rsquo;t work on Windows</strong> (I can&rsquo;t seem to get <code>apr_iconv</code> working on Windows)
+
+<ul>
+<li>Zhiguo Zhao mentioned that he&rsquo;s using <code>apr.xlate()</code> on Windows using the original <code>libiconv</code> instead of <code>apr_iconv</code> (see <a href="https://github.com/xolox/lua-apr/issues/11#issuecomment-2888555">issue #11</a>)</li>
+</ul>
+</li>
+<li>Investigate <strong>escaping problem in <code>apr_proc_create()</code></strong> as found by the test for the <code>apr.namedpipe_create()</code> function (see <code>etc/tests.lua</code> around line 625)</li>
+<li>Why is the DBD <code>LD_PRELOAD</code> trick needed?! <a href="https://answers.launchpad.net/ubuntu/%2Bsource/apr-util/%2Bquestion/143914">More information</a></li>
+</ul>
+
+
+<h2>Anything else?</h2>
+
+<ul>
+<li>Propose the <a href="https://github.com/xolox/lua-apr/blob/master/src/http.c">libapreq2 binding</a> for inclusion as the official Lua language binding of <a href="http://httpd.apache.org/apreq/">libapreq2</a>? (first make the binding a lot more complete)</li>
+<li><a href="http://davidz25.blogspot.com/2011/06/writing-c-library-part-1.html">Maybe</a> I shouldn&rsquo;t be using <code>atexit()</code> to call <code>apr_terminate()</code>? (BTW the whole linked blog post is interesting, as is the follow-up post)</li>
+</ul>
+
+</body>
+</html>

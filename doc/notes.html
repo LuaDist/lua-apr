@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Notes about the Lua/APR binding</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+body { font-family: sans-serif; padding: 1em 30% 10em 1em; cursor: default; }
+a:link, a:visited { color: #000080; }
+a:hover, a:active { color: #F00; }
+pre, code, tt { font-family: Monaco, Consolas, monospace; }
+pre, code { border: 1px solid #CCC; background: #F0F0F0; }
+pre code, h1 code, h2 code, h3 code, h4 code, h5 code, h6 code { border: none; background: none; }
+pre { padding: .3em; margin: 0 4em 0 2em; }
+code { padding: .05em .2em; }
+pre code { padding: none; }
+p, li { text-align: justify; line-height: 1.75em; }
+h1 { margin: 0; padding: 0 30% 0 0; color: #AAA; text-shadow: #000 1px 1px 0; }
+h2, h3 { border-bottom: 2px solid #F6F6F6; margin: 2em 0 0 0; padding-left: 0.5em; }
+h2 a:link, h2 a:visited, h3 a:link, h3 a:visited { padding: .2em; text-decoration: none; color: inherit; }
+h2 a:hover, h3 a:hover { color: #F00; }
+</style>
+</head>
+<body>
+<h1>Notes about the Lua/APR binding</h1>
+
+<h2>APR documentation</h2>
+
+<p>The <a href="http://apr.apache.org/docs/apr/trunk/modules.html">online API documentation for APR</a> has been my most useful resource while working on the Lua/APR binding but it leaves something to be desired when you're looking for a high level overview. The following online resources help in this regard:</p>
+
+<ul>
+<li><a href="http://www.theregister.co.uk/2006/04/27/gift_to_c/">God&rsquo;s gift to C</a> is an introductory article to the functionality of APR by <a href="http://www.theregister.co.uk/">The Register</a>.</li>
+<li>The <a href="http://dev.ariel-networks.com/apr/apr-tutorial/html/apr-tutorial.html">libapr tutorial by Inoue Seiichiro</a> is a useful starting point for writing code.</li>
+</ul>
+
+
+<h2>Building APR on Windows</h2>
+
+<p>Building APR on Windows can be a pain in the ass. It is meant to be done with Microsoft tools but fortunately these are freely available. Here are some notes I made in the process:</p>
+
+<ol>
+<li><p>Install <a href="http://www.microsoft.com/express/Downloads/#2010-Visual-CPP">Microsoft Visual C++ Express</a>. You only need the command line tools, the GUI isn&rsquo;t needed.</p></li>
+<li><p>Install the <a href="http://en.wikipedia.org/wiki/Microsoft_Windows_SDK#Obtaining_the_SDK">Microsoft Platform SDK</a>. The full SDK is over 1 GB but you only need the following:</p>
+
+<ul>
+<li>Microsoft Windows Core SDK
+
+<ul>
+<li>Build environment (x86 32-bit)</li>
+</ul>
+</li>
+<li>Microsoft Web Workshop (IE) SDK
+
+<ul>
+<li>Build environment</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Download the APR, APR-util, APR-iconv and libapreq2 archives (I used <code>apr-1.4.2-win32-src.zip</code>, <code>apr-util-1.3.9-win32-src.zip</code>, <code>apr-iconv-1.2.1-win32-src-r2.zip</code> and <code>libapreq2-2.13.tar.gz</code>) from <a href="http://apr.apache.org/">apr.apache.org</a> (you can <a href="http://www.apache.org/dist/httpd/libapreq/">get libapreq2 here</a>). Unpack all archives to the same directory and rename the subdirectories to <code>apr</code>, <code>apr-util</code> and <code>apr-iconv</code> (those three are build at the same time while libapreq2 is build separately).</p></li>
+<li><p><em>The instructions about <a href="http://apr.apache.org/compiling_win32.html">building APR on Windows</a> don&rsquo;t work for me so this is where things get sketchy:</em> Open a Windows SDK command prompt and navigate to the <code>apr-util</code> directory. Inside this directory execute <code>nmake -f Makefile.win buildall</code>. This doesn&rsquo;t work for me out of the box because of what&rsquo;s probably a bug in the APR-util makefile; I needed to replace <code>apr_app</code> with <code>aprapp</code> on lines 176 and 177 of <code>Makefile.win</code>. After this change <code>nmake</code> still exits with errors but nevertheless seems to build <code>libapr-1.dll</code> and <code>libaprutil-1.dll</code>&hellip;</p></li>
+<li><p>You also have to build APREQ, last I tried this was a mess on Windows, I collected some notes at the bottom of this page.</p></li>
+</ol>
+
+
+<h3>Building the SQlite3 database driver on Windows</h3>
+
+<p>The SQLite 3 driver is included in the <a href="http://peterodding.com/code/lua/apr/downloads/lua-apr-0.20-win32.zip">Windows binaries</a> but for the benefit of those who want to build the Apache Portable Runtime on Windows here are the steps involved:</p>
+
+<ol>
+<li><p>Download the <a href="http://www.sqlite.org/sqlite-dll-win32-x86-3070400.zip">precompiled SQLite 3 binaries For Windows</a> (273.98 KiB) and unpack the files somewhere.</p></li>
+<li><p>Create <code>sqlite3.lib</code> from <code>sqlite3.def</code> (included in the precompiled binaries) using the command <code>lib /machine:i386 /def:sqlite3.def</code> and copy <code>sqlite3.lib</code> to <code>apr-util-1.3.9/LibR</code>.</p></li>
+<li><p>Download the corresponding <a href="http://www.sqlite.org/sqlite-preprocessed-3070400.zip">source code distribution</a> (1.20 MiB) and copy <code>sqlite3.h</code> to <code>apr-util-1.3.9/include</code>.</p></li>
+<li><p>Build the driver in the Windows SDK command prompt using the command <code>nmake /f apr_dbd_sqlite3.mak</code>.</p></li>
+<li><p>To install the driver you can copy <code>sqlite3.dll</code> and <code>apr_dbd_sqlite3-1.dll</code> to Lua&rsquo;s installation directory.</p></li>
+</ol>
+
+
+<h3>Building <code>libapreq2</code> on Windows</h3>
+
+<p>I wasted a few hours getting <code>libapreq2</code> version 2.13 to build on Windows because of the following issues:</p>
+
+<ul>
+<li>The included makefile <code>libapreq2.mak</code> is full of syntax errors.</li>
+<li>The makefile unconditionally includes the Apache module and consequently doesn&rsquo;t link without a full Apache build.</li>
+<li>The build environment requires a specific flavor of Perl which I haven&rsquo;t gotten to work.</li>
+</ul>
+
+
+<p>Eventually I decided to just rewrite the damned makefile and be done with it, enabling me to finally test the HTTP request parsing module on Windows (all tests passed the first time). I've included the <a href="https://github.com/xolox/lua-apr/blob/master/etc/win32-bootstrap/libapreq2.mak">customized makefile</a> in the Lua/APR git repository.</p>
+</body>
+</html>
