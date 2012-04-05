@@ -17,9 +17,11 @@ FIND_PATH(APR_INCLUDE_DIR apr.h
 /usr/local/include/apr-1.0
 /usr/include/apr-1
 /usr/include/apr-1.0
+/usr/local/include/apr
+/usr/include/apr
 )
 
-SET(APR_NAMES ${APR_NAMES} apr-1)
+SET(APR_NAMES ${APR_NAMES} apr-1 apr)
 FIND_LIBRARY(APR_LIBRARY
   NAMES ${APR_NAMES}
   PATHS /usr/lib /usr/local/lib
