@@ -11,5 +11,5 @@ maintainer = "Michal Kottman"
 
 depends = {
 	"lua ~> 5.1",
-	"apr ~> 1.0",
+	"apr >= 1.4",
 }
