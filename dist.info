@@ -10,5 +10,6 @@ url = "http://peterodding.com/code/lua/apr/"
 maintainer = "Michal Kottman"
 
 depends = {
-	"lua ~> 5.1"
+	"lua ~> 5.1",
+	"apr ~> 1.0",
 }
