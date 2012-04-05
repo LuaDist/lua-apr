@@ -1,97 +1,37 @@
-# -*- cmake -*-
-# From: http://code.google.com/p/emeraldviewer/source/browse/indra/cmake/FindAPR.cmake
+# Copyright (C) 2012 LuaDist.
+# Created by Peter Kapec <kapecp@gmail.com>
+# Redistribution and use of this file is allowed according to the terms of the MIT license.
+# For details see the COPYRIGHT file distributed with LuaDist.
+#	Note:
+#		Searching headers and libraries is very simple and is NOT as powerful as scripts
+#		distributed with CMake, because LuaDist defines directories to search for.
+#		Everyone is encouraged to contact the author with improvements. Maybe this file
+#		becomes part of CMake distribution sometimes.
 
-# - Find Apache Portable Runtime
-# Find the APR includes and libraries
-# This module defines
-#  APR_INCLUDE_DIR and APRUTIL_INCLUDE_DIR, where to find apr.h, etc.
-#  APR_LIBRARIES and APRUTIL_LIBRARIES, the libraries needed to use APR.
-#  APR_FOUND and APRUTIL_FOUND, If false, do not try to use APR.
-# also defined, but not for general use are
-#  APR_LIBRARY and APRUTIL_LIBRARY, where to find the APR library.
+# - Find apr
+# Find the native APR headers and libraries.
+#
+# APR_INCLUDE_DIRS	- where to find zzip/zzip.h, etc.
+# APR_LIBRARIES	- List of libraries when using apr.
+# APR_FOUND	- True if apr found.
 
-# APR first.
+# Look for the header file.
+FIND_PATH(APR_INCLUDE_DIR NAMES apr.h)
 
-FIND_PATH(APR_INCLUDE_DIR apr.h
-/usr/local/include/apr-1
-/usr/local/include/apr-1.0
-/usr/include/apr-1
-/usr/include/apr-1.0
-/usr/local/include/apr
-/usr/include/apr
-)
+# Look for the library.
+FIND_LIBRARY(APR_LIBRARY NAMES apr)
 
-SET(APR_NAMES ${APR_NAMES} apr-1 apr)
-FIND_LIBRARY(APR_LIBRARY
-  NAMES ${APR_NAMES}
-  PATHS /usr/lib /usr/local/lib
-  )
+# Handle the QUIETLY and REQUIRED arguments and set APR_FOUND to TRUE if all listed variables are TRUE.
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(APR DEFAULT_MSG APR_LIBRARY APR_INCLUDE_DIR)
 
-IF (APR_LIBRARY AND APR_INCLUDE_DIR)
-    SET(APR_LIBRARIES ${APR_LIBRARY})
-    SET(APR_FOUND "YES")
-ELSE (APR_LIBRARY AND APR_INCLUDE_DIR)
-  SET(APR_FOUND "NO")
-ENDIF (APR_LIBRARY AND APR_INCLUDE_DIR)
+# Copy the results to the output variables.
+IF(APR_FOUND)
+	SET(APR_LIBRARIES ${APR_LIBRARY})
+	SET(APR_INCLUDE_DIRS ${APR_INCLUDE_DIR})
+ELSE(APR_FOUND)
+	SET(APR_LIBRARIES)
+	SET(APR_INCLUDE_DIRS)
+ENDIF(APR_FOUND)
 
-
-IF (APR_FOUND)
-   IF (NOT APR_FIND_QUIETLY)
-      MESSAGE(STATUS "Found APR: ${APR_LIBRARIES}")
-   ENDIF (NOT APR_FIND_QUIETLY)
-ELSE (APR_FOUND)
-   IF (APR_FIND_REQUIRED)
-      MESSAGE(FATAL_ERROR "Could not find APR library")
-   ENDIF (APR_FIND_REQUIRED)
-ENDIF (APR_FOUND)
-
-# Deprecated declarations.
-SET (NATIVE_APR_INCLUDE_PATH ${APR_INCLUDE_DIR} )
-GET_FILENAME_COMPONENT (NATIVE_APR_LIB_PATH ${APR_LIBRARY} PATH)
-
-MARK_AS_ADVANCED(
-  APR_LIBRARY
-  APR_INCLUDE_DIR
-  )
-
-# Next, APRUTIL.
-
-FIND_PATH(APRUTIL_INCLUDE_DIR apu.h
-/usr/local/include/apr-1
-/usr/local/include/apr-1.0
-/usr/include/apr-1
-/usr/include/apr-1.0
-)
-
-SET(APRUTIL_NAMES ${APRUTIL_NAMES} aprutil-1)
-FIND_LIBRARY(APRUTIL_LIBRARY
-  NAMES ${APRUTIL_NAMES}
-  PATHS /usr/lib /usr/local/lib
-  )
-
-IF (APRUTIL_LIBRARY AND APRUTIL_INCLUDE_DIR)
-    SET(APRUTIL_LIBRARIES ${APRUTIL_LIBRARY})
-    SET(APRUTIL_FOUND "YES")
-ELSE (APRUTIL_LIBRARY AND APRUTIL_INCLUDE_DIR)
-  SET(APRUTIL_FOUND "NO")
-ENDIF (APRUTIL_LIBRARY AND APRUTIL_INCLUDE_DIR)
-
-
-IF (APRUTIL_FOUND)
-   IF (NOT APRUTIL_FIND_QUIETLY)
-      MESSAGE(STATUS "Found APRUTIL: ${APRUTIL_LIBRARIES}")
-   ENDIF (NOT APRUTIL_FIND_QUIETLY)
-ELSE (APRUTIL_FOUND)
-   IF (APRUTIL_FIND_REQUIRED)
-      MESSAGE(FATAL_ERROR "Could not find APRUTIL library")
-   ENDIF (APRUTIL_FIND_REQUIRED)
-ENDIF (APRUTIL_FOUND)
-
-# Deprecated declarations.
-SET (NATIVE_APRUTIL_INCLUDE_PATH ${APRUTIL_INCLUDE_DIR} )
-GET_FILENAME_COMPONENT (NATIVE_APRUTIL_LIB_PATH ${APRUTIL_LIBRARY} PATH)
-
-MARK_AS_ADVANCED(
-  APRUTIL_LIBRARY
-  APRUTIL_INCLUDE_DIR
-  )
+MARK_AS_ADVANCED(APR_INCLUDE_DIRS APR_LIBRARIES)
