@@ -10,12 +10,13 @@ include(dist.cmake)
 
 find_package(APR REQUIRED)
 
-set(SOURCES src/base64.c
+option ( LUAAPR_HAVE_APRUTIL "compile with apr-util library" ON )
+
+configure_file ( src/lua_apr_config.h.cmake lua_apr_config.h )
+include_directories (  ${CMAKE_CURRENT_BINARY_DIR} )
+
+set(SOURCES
 	src/buffer.c
-	src/crypt.c
-	src/date.c
-	src/dbd.c
-	src/dbm.c
 	src/env.c
 	src/errno.c
 	src/filepath.c
@@ -26,27 +27,38 @@ set(SOURCES src/base64.c
 	src/io_file.c
 	src/io_net.c
 	src/io_pipe.c
-	src/ldap.c
 	src/lua_apr.c
-	src/memcache.c
 	src/memory_pool.c
 	src/object.c
 	src/permissions.c
 	src/pollset.c
 	src/proc.c
-	src/serialize.c
 	src/shm.c
 	src/signal.c
 	src/stat.c
 	src/str.c
+	src/time.c
 	src/thread.c
 	src/thread_queue.c
-	src/time.c
-	src/uri.c
 	src/user.c
-	src/uuid.c
-	src/xlate.c
-	src/xml.c)
+)
+if ( LUAAPR_HAVE_APRUTIL )
+	set ( SOURCES
+		src/base64.c
+		src/crypt.c
+		src/date.c
+		src/dbd.c
+		src/dbm.c
+		src/ldap.c
+		src/memcache.c
+		src/serialize.c
+		src/uuid.c
+		src/uri.c
+		src/xlate.c
+		src/xml.c
+		${src}
+	)
+endif ()
 
 include_directories(${APR_INCLUDE_DIR} ${APRUTIL_INCLUDE_DIR})
 
