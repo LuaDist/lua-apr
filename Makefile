@@ -15,6 +15,7 @@ PACKAGE = lua-apr-$(VERSION)-$(RELEASE)
 LUA_DIR = /usr/local
 LUA_LIBDIR = $(LUA_DIR)/lib/lua/5.1
 LUA_SHAREDIR = $(LUA_DIR)/share/lua/5.1
+LUA_SHELL ?= lua
 
 # Location for generated HTML documentation.
 LUA_APR_DOCS = $(LUA_DIR)/share/doc/lua-apr
@@ -70,8 +71,8 @@ SOURCES = $(SOURCE_BASE) $(SOURCES_APRUTIL)
 
 # Determine compiler flags and linker flags for external dependencies using a
 # combination of pkg-config, apr-1-config, apu-1-config and apreq2-config.
-override CFLAGS += $(shell lua etc/make.lua --cflags)
-override LFLAGS += $(shell lua etc/make.lua --lflags)
+override CFLAGS += $(shell ${LUA_SHELL} etc/make.lua --cflags)
+override LFLAGS += $(shell ${LUA_SHELL} etc/make.lua --lflags)
 
 # Create debug builds by default but enable release
 # builds using the command line "make DO_RELEASE=1".
@@ -102,16 +103,16 @@ default: $(BINARY_MODULE)
 
 # Build the binary module.
 $(BINARY_MODULE): $(OBJECTS) Makefile
-	$(CC) $(LINK_TYPE) -o $@ $(OBJECTS) $(LFLAGS) || lua etc/make.lua --check
+	$(CC) $(LINK_TYPE) -o $@ $(OBJECTS) $(LFLAGS) || ${LUA_SHELL} etc/make.lua --check
 
 # Build the standalone libapreq2 binding (not sure if anyone out there is
 # actually using this, if you are please speak up or I may remove this :-)
 $(APREQ_BINARY): etc/apreq_standalone.c Makefile
-	$(CC) -Wall $(LINK_TYPE) -o $@ $(CFLAGS) -fPIC etc/apreq_standalone.c $(LFLAGS) || lua etc/make.lua --check
+	$(CC) -Wall $(LINK_TYPE) -o $@ $(CFLAGS) -fPIC etc/apreq_standalone.c $(LFLAGS) || ${LUA_SHELL} etc/make.lua --check
 
 # Compile individual source code files to object files.
 $(OBJECTS): %.o: %.c src/lua_apr.h Makefile
-	$(CC) -Wall -c $(CFLAGS) -fPIC $< -o $@ || lua etc/make.lua --check
+	$(CC) -Wall -c $(CFLAGS) -fPIC $< -o $@ || ${LUA_SHELL} etc/make.lua --check
 
 src/lua_apr.h: src/lua_apr_config.h
 src/lua_apr_config.h: src/lua_apr_config.h.in
@@ -119,7 +120,7 @@ src/lua_apr_config.h: src/lua_apr_config.h.in
 
 # Always try to regenerate the error handling module.
 src/errno.c: etc/errors.lua Makefile
-	@lua etc/errors.lua
+	@${LUA_SHELL} etc/errors.lua
 
 # Install the Lua/APR binding under $LUA_DIR.
 install: $(BINARY_MODULE) docs
@@ -143,11 +144,11 @@ uninstall:
 
 # Run the test suite.
 test: install
-	export LD_PRELOAD=/lib/libSegFault.so; lua -e "require 'apr.test' ()"
+	export LD_PRELOAD=/lib/libSegFault.so; ${LUA_SHELL} -e "require 'apr.test' ()"
 
 # Run the test suite under Valgrind to detect and analyze errors.
 valgrind:
-	valgrind -q --track-origins=yes --leak-check=full lua -e "require 'apr.test' ()"
+	valgrind -q --track-origins=yes --leak-check=full ${LUA_SHELL} -e "require 'apr.test' ()"
 
 # Create or update test coverage report using "lcov".
 coverage:
@@ -158,10 +159,10 @@ coverage:
 
 # Convert the Markdown documents to HTML.
 docs: doc/docs.md $(SOURCE_MODULE) $(SOURCES)
-	@lua etc/wrap.lua doc/docs.md doc/docs.html
-	@lua etc/wrap.lua README.md doc/readme.html
-	@lua etc/wrap.lua NOTES.md doc/notes.html
-	@lua etc/wrap.lua TODO.md doc/todo.html
+	@${LUA_SHELL} etc/wrap.lua doc/docs.md doc/docs.html
+	@${LUA_SHELL} etc/wrap.lua README.md doc/readme.html
+	@${LUA_SHELL} etc/wrap.lua NOTES.md doc/notes.html
+	@${LUA_SHELL} etc/wrap.lua TODO.md doc/todo.html
 
 # Extract the documentation from the source code and generate a Markdown file
 # containing all documentation including coverage statistics (if available).
@@ -173,13 +174,13 @@ docs: doc/docs.md $(SOURCE_MODULE) $(SOURCES)
 # documentation and lose the coverage statistics...
 doc/docs.md: etc/docs.lua
 	@[ -d doc ] || mkdir doc
-	@lua etc/docs.lua > doc/docs.md
+	@${LUA_SHELL} etc/docs.lua > doc/docs.md
 
 # Create a profiling build, run the test suite, generate documentation
 # including test coverage, then clean the intermediate files.
 package_prerequisites: clean
 	@echo Collecting coverage statistics using profiling build
-	@export PROFILING=1; lua etc/buildbot.lua --local
+	@export PROFILING=1; ${LUA_SHELL} etc/buildbot.lua --local
 	@echo Generating documentation including coverage statistics
 	@rm -f doc/docs.md; make --no-print-directory docs
 
