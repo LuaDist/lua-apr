@@ -237,7 +237,7 @@ local function checkpackages()
     -- Tested on Arch Linux 2011.08.19.
     command = 'pacman -S'
     installedpackagescmd = [[ bash -c "comm -23 <(pacman -Qeq) <(pacman -Qmq)" ]]
-    requiredpackages = [[ lua apr apr-util perl-libapreq2 ]]
+    requiredpackages = [[ lua apr apr-util libapreq2 ]]
   else
     message [[
       Unknown platform: You'll have to install the required system
